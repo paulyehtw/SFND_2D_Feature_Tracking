@@ -11,14 +11,23 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
 
-    if (matcherType.compare("MAT_BF") == 0)
+    if (matcherType == "MAT_BF")
     {
         int normType = cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
-    else if (matcherType.compare("MAT_FLANN") == 0)
+    else if (matcherType == "MAT_FLANN")
     {
-        // ...
+        // In order to use FlannBasedMatcher, descriptors need to be CV_32F
+        if (descSource.type() != CV_32F)
+        {
+            descSource.convertTo(descSource, CV_32F);
+        }
+        if (descRef.type() != CV_32F)
+        {
+            descRef.convertTo(descRef, CV_32F);
+        }
+        matcher = cv::FlannBasedMatcher::create();
     }
 
     // perform matching task
