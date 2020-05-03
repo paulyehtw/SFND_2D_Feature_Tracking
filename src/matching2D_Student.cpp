@@ -31,15 +31,25 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
 
     // perform matching task
-    if (selectorType.compare("SEL_NN") == 0)
-    { // nearest neighbor (best match)
-
+    if (selectorType == "SEL_NN")
+    {
+        // nearest neighbor (best match)
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
     }
-    else if (selectorType.compare("SEL_KNN") == 0)
-    { // k nearest neighbors (k=2)
-
-        // ...
+    else if (selectorType == "SEL_KNN")
+    {
+        // k nearest neighbors (k=2)
+        int k = 2;
+        float distanceRatioThreshold = 0.8F;
+        std::vector<std::vector<cv::DMatch>> knnMatches;
+        matcher->knnMatch(descSource, descRef, knnMatches, k);
+        for (auto match : knnMatches)
+        {
+            if (match[0].distance < distanceRatioThreshold * match[1].distance)
+            {
+                matches.push_back(match[0]);
+            }
+        }
     }
 }
 
