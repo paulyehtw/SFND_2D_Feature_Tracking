@@ -1,5 +1,5 @@
-#include <numeric>
 #include "matching2D.hpp"
+#include <numeric>
 
 using namespace std;
 
@@ -96,6 +96,54 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
         string windowName = "Shi-Tomasi Corner Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+}
+
+// Detect keypoints in image using the traditional Harris detector
+void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    // Set detector parameters
+    int blockSize = 2;         // Neighborhood size
+    int apertureSize = 3;      // Aperture parameter for the Sobel operator.
+    double k = 0.04;           // Harris detector free parameter
+    int cornerThreshold = 100; // Threshold for being considered as a corner
+
+    double t = (double)cv::getTickCount();
+    vector<cv::Point2f> corners;
+    // Apply corner detection
+    cv::Mat dst = cv::Mat::zeros(img.size(), CV_32FC1);
+    cv::cornerHarris(img, dst, blockSize, apertureSize, k);
+
+    // Normalize the result
+    cv::Mat dst_norm;
+    cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+
+    // Add detected corners to the result vector
+    for (int i = 0; i < dst_norm.rows; i++)
+    {
+        for (int j = 0; j < dst_norm.cols; j++)
+        {
+            if ((int)dst_norm.at<float>(i, j) > cornerThreshold)
+            {
+                cv::KeyPoint newKeyPoint;
+                newKeyPoint.pt = cv::Point2f(j, i);
+                newKeyPoint.size = blockSize;
+                keypoints.push_back(newKeyPoint);
+            }
+        }
+    }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Harris detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    if (bVis)
+    {
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string windowName = "Harris Corner Detector Results";
         cv::namedWindow(windowName, 6);
         imshow(windowName, visImage);
         cv::waitKey(0);
