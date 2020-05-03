@@ -121,7 +121,6 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     // add corners to result vector
     for (auto it = corners.begin(); it != corners.end(); ++it)
     {
-
         cv::KeyPoint newKeyPoint;
         newKeyPoint.pt = cv::Point2f((*it).x, (*it).y);
         newKeyPoint.size = blockSize;
