@@ -84,14 +84,23 @@ int main(int argc, const char *argv[])
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-
-        if (detectorType.compare("SHITOMASI") == 0)
+        if (detectorType == "SHITOMASI")
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
         }
+        else if (detectorType == "HARRIS")
+        {
+            detKeypointsHarris(keypoints, imgGray, false);
+        }
+        else if (detectorType == "BRISK" || detectorType == "ORB" || detectorType == "AKAZE" || detectorType == "SIFT")
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
         else
         {
-            //...
+            // Default keypoint detector
+            cout << "\033[1;33mNo keypoint detector is seletecd, using the Shi-Tomasi detector as default\033[0m\n";
+            detKeypointsShiTomasi(keypoints, imgGray, false);
         }
         //// EOF STUDENT ASSIGNMENT
 
@@ -103,7 +112,16 @@ int main(int argc, const char *argv[])
         cv::Rect vehicleRect(535, 180, 180, 150);
         if (bFocusOnVehicle)
         {
-            // ...
+            vector<cv::KeyPoint> croppedKeypoints; // create empty list for cropped keypoints
+            for (cv::KeyPoint keypoint : keypoints)
+            {
+                if ((keypoint.pt.x >= vehicleRect.x && keypoint.pt.x <= vehicleRect.x + vehicleRect.width) &&
+                    (keypoint.pt.y >= vehicleRect.y && keypoint.pt.y <= vehicleRect.y + vehicleRect.height))
+                {
+                    croppedKeypoints.push_back(keypoint);
+                }
+            }
+            keypoints = croppedKeypoints;
         }
 
         //// EOF STUDENT ASSIGNMENT
