@@ -195,7 +195,12 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
 {
     double t = (double)cv::getTickCount();
     // Apply corner detection
-    if (detectorType == "BRISK")
+    if (detectorType == "FAST")
+    {
+        cv::Ptr<cv::FeatureDetector> detector = cv::FastFeatureDetector::create();
+        detector->detect(img, keypoints);
+    }
+    else if (detectorType == "BRISK")
     {
         cv::Ptr<cv::FeatureDetector> detector = cv::BRISK::create();
         detector->detect(img, keypoints);
