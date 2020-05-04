@@ -28,8 +28,10 @@ int main(int argc, const char *argv[])
     string dataPath = "../";
     ofstream numDetectedKeyPointsLog("/home/paul/Desktop/num_detected_keypoints.csv");
     ofstream numMatchedKeyPointsLog("/home/paul/Desktop/num_matched_keypoints.csv");
+    ofstream avgProcessingTimeLog("/home/paul/Desktop/avg_processing_time.csv");
     numDetectedKeyPointsLog << "Detector,Number of detected keypoints" << endl;
     numMatchedKeyPointsLog << "Detector,Number of matched keypoints" << endl;
+    avgProcessingTimeLog << "Detector,Average processing time" << endl;
 
     // camera
     string imgBasePath = dataPath + "images/";
@@ -47,15 +49,17 @@ int main(int argc, const char *argv[])
     bool bEvaluatePerformance = true;
     // vector<string> detectorTypeList = {"AKAZE"};
     vector<string> detectorTypeList = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
-    string descriptorType = "BRISK";
+    string descriptorType = "SIFT";
     vector<size_t> totalNumDetectedKeyPointsList{};
     vector<size_t> totalNumMatchedKeyPointsList{};
+    vector<double> avgProcessingTimeList{};
 
     // Loop over detectors
     for (string detectorType : detectorTypeList)
     {
         size_t totalNumDetectedKeyPoints = 0U;
         size_t totalNumMatchedKeyPoints = 0U;
+        double totalProcessingTime = 0.0;
         /* MAIN LOOP OVER ALL IMAGES */
         for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
         {
@@ -90,6 +94,7 @@ int main(int argc, const char *argv[])
             //// EOF STUDENT ASSIGNMENT
             cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
+            double processingTime = (double)cv::getTickCount();
             /* DETECT IMAGE KEYPOINTS */
 
             // extract 2D keypoints from current image
@@ -179,6 +184,8 @@ int main(int argc, const char *argv[])
             (dataBuffer.end() - 1)->descriptors = descriptors;
 
             cout << "#3 : EXTRACT DESCRIPTORS done" << endl;
+            processingTime = ((double)cv::getTickCount() - processingTime) / cv::getTickFrequency();
+            totalProcessingTime += processingTime;
 
             if (dataBuffer.size() > 1) // wait until at least two images have been processed
             {
@@ -234,6 +241,8 @@ int main(int argc, const char *argv[])
             }
 
         } // eof loop over all images
+        // Log average processing time in ms
+        double averageProcessingTime = 1000 * (totalProcessingTime / (imgEndIndex + 1)) / 1.0;
         if (bEvaluatePerformance)
         {
             cout << "Total number of detected keypoints of " + detectorType + " detector is : "
@@ -242,6 +251,7 @@ int main(int argc, const char *argv[])
                  << totalNumMatchedKeyPoints << endl;
             totalNumDetectedKeyPointsList.push_back(totalNumDetectedKeyPoints);
             totalNumMatchedKeyPointsList.push_back(totalNumMatchedKeyPoints);
+            avgProcessingTimeList.push_back(averageProcessingTime);
         }
     } // Loop over detectors
     cout << endl
@@ -253,6 +263,7 @@ int main(int argc, const char *argv[])
              << totalNumMatchedKeyPointsList[i] << " matched keypoints" << endl;
         numDetectedKeyPointsLog << detectorTypeList[i] << "," << totalNumDetectedKeyPointsList[i] << endl;
         numMatchedKeyPointsLog << detectorTypeList[i] << "," << totalNumMatchedKeyPointsList[i] << endl;
+        avgProcessingTimeLog << detectorTypeList[i] << "," << avgProcessingTimeList[i] << endl;
     }
     numDetectedKeyPointsLog.close();
     numMatchedKeyPointsLog.close();
