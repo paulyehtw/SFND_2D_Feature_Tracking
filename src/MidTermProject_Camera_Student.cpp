@@ -26,6 +26,10 @@ int main(int argc, const char *argv[])
 
     // data location
     string dataPath = "../";
+    ofstream numDetectedKeyPointsLog("/home/paul/Desktop/num_detected_keypoints.csv");
+    ofstream numMatchedKeyPointsLog("/home/paul/Desktop/num_matched_keypoints.csv");
+    numDetectedKeyPointsLog << "Detector,Number of detected keypoints" << endl;
+    numMatchedKeyPointsLog << "Detector,Number of matched keypoints" << endl;
 
     // camera
     string imgBasePath = dataPath + "images/";
@@ -41,17 +45,18 @@ int main(int argc, const char *argv[])
     bool bVis = false;            // visualize results
 
     bool bEvaluatePerformance = true;
-    size_t totalNumDetectedKeyPoints = 0U;
-    // string detectorType = "HARRIS";
+    // vector<string> detectorTypeList = {"AKAZE"};
     vector<string> detectorTypeList = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
+    string descriptorType = "BRISK";
     vector<size_t> totalNumDetectedKeyPointsList{};
+    vector<size_t> totalNumMatchedKeyPointsList{};
 
     // Loop over detectors
     for (string detectorType : detectorTypeList)
     {
-
+        size_t totalNumDetectedKeyPoints = 0U;
+        size_t totalNumMatchedKeyPoints = 0U;
         /* MAIN LOOP OVER ALL IMAGES */
-
         for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
         {
             /* LOAD IMAGE INTO BUFFER */
@@ -166,7 +171,7 @@ int main(int argc, const char *argv[])
             //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
             cv::Mat descriptors;
-            string descriptorType = "BRISK"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+
             descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
             //// EOF STUDENT ASSIGNMENT
 
@@ -194,6 +199,11 @@ int main(int argc, const char *argv[])
                                  matches, descriptorType, matcherType, selectorType);
 
                 //// EOF STUDENT ASSIGNMENT
+                if (bEvaluatePerformance)
+                {
+                    totalNumMatchedKeyPoints += matches.size();
+                }
+                cout << "Number of matched keypoints is " << matches.size() << endl;
 
                 // store matches in current data frame
                 (dataBuffer.end() - 1)->kptMatches = matches;
@@ -228,13 +238,23 @@ int main(int argc, const char *argv[])
         {
             cout << "Total number of detected keypoints of " + detectorType + " detector is : "
                  << totalNumDetectedKeyPoints << endl;
+            cout << "Total number of matched keypoints of " + detectorType + " detector/" + descriptorType + " descriptor is : "
+                 << totalNumMatchedKeyPoints << endl;
             totalNumDetectedKeyPointsList.push_back(totalNumDetectedKeyPoints);
+            totalNumMatchedKeyPointsList.push_back(totalNumMatchedKeyPoints);
         }
     } // Loop over detectors
+    cout << endl
+         << "================= Evaluation Result =================" << endl;
     for (int i = 0; i < detectorTypeList.size(); ++i)
     {
-        cout << detectorTypeList[i] + " detector has " << totalNumDetectedKeyPointsList[i] << " keypoints" << endl;
+        cout << detectorTypeList[i] + " detector with " + descriptorType + " descriptor, there are "
+             << totalNumDetectedKeyPointsList[i] << " detected keypoints and "
+             << totalNumMatchedKeyPointsList[i] << " matched keypoints" << endl;
+        numDetectedKeyPointsLog << detectorTypeList[i] << "," << totalNumDetectedKeyPointsList[i] << endl;
+        numMatchedKeyPointsLog << detectorTypeList[i] << "," << totalNumMatchedKeyPointsList[i] << endl;
     }
-
+    numDetectedKeyPointsLog.close();
+    numMatchedKeyPointsLog.close();
     return 0;
 }
