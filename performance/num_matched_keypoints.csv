@@ -1,0 +1,8 @@
+Detector,Number of matched keypoints
+SHITOMASI,936
+HARRIS,409
+FAST,2805
+BRISK,1620
+ORB,763
+AKAZE,1263
+SIFT,820

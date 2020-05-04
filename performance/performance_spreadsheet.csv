@@ -1,0 +1,35 @@
+1. Number of keypoints on the preceding vehicle for all 10 images for each keypoint detector,,,,,,
+Detector,No. keypoints,,,,,
+SHITOMASI,1189,,,,,
+HARRIS,1084,,,,,
+FAST,4136,,,,,
+BRISK,2714,,,,,
+ORB,1150,,,,,
+AKAZE,1655,,,,,
+SIFT,1371,,,,,
+,,,,,,
+2. The number of matched keypoints for all 10 images using all possible combinations of detectors and descriptors,,,,,,
+Detector/Descriptor,BRISK,BRIEF,ORB,FREAK,AKAZE,SIFT
+SHITOMASI,771,953,914,768,N/A,936
+HARRIS,393,423,412,443,N/A,409
+FAST,2248,2924,2869,2284,N/A,2805
+BRISK,1563,1805,1496,1518,N/A,1620
+ORB,753,576,757,438,N/A,763
+AKAZE,1206,1322,1186,1183,1249,1263
+SIFT,602,751,Out of Memory,626,N/A,820
+,,,,,,
+3. Average Processing Time (ms) on all images for each detector/descriptor combination,,,,,,
+Detector/Descriptor,BRISK,BRIEF,ORB,FREAK,AKAZE,SIFT
+SHITOMASI,601.261,25.3585,34.3536,104.04,N/A,63.8929
+HARRIS,564.416,28.8252,35.3673,103.321,N/A,59.392
+FAST,554.408,11.0708,17.3062,88.828,N/A,75.9405
+BRISK,1174.21,616.871,645.412,691.046,N/A,702.332
+ORB,547.948,20.8855,50.7708,100.113,N/A,112.002
+AKAZE,745.616,215.533,232.859,286.765,344.428,257.345
+SIFT,762.529,227.408,Out of Memory,326.65,N/A,343.704
+,,,,,,
+TOP3 detector/descriptor combinations,,,,,,
+Combination,Processing Time,Matched Points,,,,
+1. FAST/BRIEF,11.0708,2924,,,,
+2. FAST/ORB,17.3062,2869,,,,
+3. ORB/ORB,50.7708,757,,,,
